@@ -1,0 +1,165 @@
+<%- include('partials/header'); -%>
+
+    <div>
+        <button id="randomizeArrayButton">Randomize Array</button>
+        <a href="/insertion-sort"></a><button id="insertionSortButton">Insertion Sort</button></a>
+        <a href="/selection-sort"></a><button id="selectionSortButton">Selection Sort</button></a>
+        <a href="/bubble-sort"></a><button id="bubbleSortButton">Bubble Sort</button></a>
+        <a href="/quick-sort"></a><button id="quickSortButton">Quick Sort</button></a>
+        <a href="/merge-sort"></a><button id="mergeSortButton">Merge Sort</button></a>
+        <a href="/shell-sort"></a><button id="shellSortButton">Shell Sort</button></a>
+        <a href="/change-size"></a><button>Change Size</button></a>
+    </div>
+
+
+
+    <div>
+        <div id="arrayBars"></div>
+      </div>
+      
+      <div id="randomizedArrayContainer"></div>
+      <div id="sortedDataContainer"></div>
+
+      
+
+
+<script>
+    // Define a function to draw the bars
+    function drawBars(dataArray) {
+      const arrayBars = document.getElementById('arrayBars');
+      arrayBars.innerHTML = '';
+  
+      for (const value of dataArray) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = value * 4 + 'px'; // Adjust the scaling as needed
+        arrayBars.appendChild(bar);
+      }
+    }
+  
+    // Define a function to handle sorting
+    async function handleSort(sortType) {
+      const dataArray = [3, 50, 1, 5, 20, 37, 70, 23]; // Replace with your data
+      let endpoint;
+  
+      switch (sortType) {
+        case 'selection':
+          endpoint = '/selection-sort';
+          break;
+        case 'insertion':
+          endpoint = '/insertion-sort';
+          break;
+        case 'bubble':
+          endpoint = '/bubble-sort';
+          break;
+        case 'quick':
+          endpoint = '/quick-sort';
+          break;
+        case 'merge':
+          endpoint = '/merge-sort';
+          break;
+        case 'shell':
+          endpoint = '/shell-sort';
+          break;
+        default:
+          console.error('Invalid sort type:', sortType);
+          return;
+      }
+  
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ dataToSort: dataArray }),
+        });
+        if (response.ok) {
+        const data = await response.json();
+
+        // Display the sorted data in the "sortedDataContainer" div
+        const sortedDataContainer = document.getElementById('sortedDataContainer');
+        sortedDataContainer.textContent =
+          `Sorted Data (${sortType === 'selection' ? 'Selection Sort' :
+            sortType === 'insertion' ? 'Insertion Sort' :
+            sortType === 'bubble' ? 'Bubble Sort' :
+            sortType === 'quick' ? 'Quick Sort' :
+            sortType === 'merge' ? 'Merge Sort' :
+            sortType === 'shell' ? 'Shell Sort' : 'Unknown Sort'}): ` +
+          data.sortedData.join(', ');
+
+        // Draw the bars after sorting
+        drawBars(data.sortedData);
+      } else {
+        console.error('Failed to fetch data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  }
+
+  // Define a function to handle randomizing the array
+  async function handleRandomizeArray() {
+    try {
+      const response = await fetch('/randomize-array', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Parse the response as JSON to get the randomized array data
+        const data = await response.json();
+
+        // Update the content of the HTML element with the randomized array data
+        const randomizedArrayContainer = document.getElementById('randomizedArrayContainer');
+        randomizedArrayContainer.textContent = `Randomized Array: [${data.randomizedArray.join(', ')}]`;
+
+        // Draw the bars after randomizing
+        drawBars(data.randomizedArray);
+      } else {
+        console.error('Failed to randomize array:', response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  }
+
+   // Add event listeners to all Sort buttons
+   document.getElementById('selectionSortButton').addEventListener('click', () => {
+    handleSort('selection');
+  });
+
+  document.getElementById('insertionSortButton').addEventListener('click', () => {
+    handleSort('insertion');
+  });
+
+  document.getElementById('bubbleSortButton').addEventListener('click', () => {
+    handleSort('bubble');
+  });
+
+  document.getElementById('quickSortButton').addEventListener('click', () => {
+    handleSort('quick');
+  });
+
+  document.getElementById('mergeSortButton').addEventListener('click', () => {
+    handleSort('merge');
+  });
+
+  document.getElementById('shellSortButton').addEventListener('click', () => {
+    handleSort('shell');
+  });
+
+  // Add an event listener to the Randomize Array button
+  document.getElementById('randomizeArrayButton').addEventListener('click', () => {
+    handleRandomizeArray();
+  });
+
+  // Initial draw of bars for the sample array
+  drawBars([3, 50, 1, 5, 20, 37, 70, 23]);
+</script>
+
+
+
+    <%- include('partials/footer'); -%>
